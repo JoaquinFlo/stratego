@@ -208,13 +208,16 @@ def set_up(piece_names: list[str], pieces: list[Piece]):
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate")
+            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
             continue
         num1: int = letterToNums.get(letter)
         num2: int = int(num)
 
         if not valid_place(GameState.get_colour(), num1, num2):
-            print("Invalid coordinate")
+            if GameState.get_colour() == RED:
+                print("Invalid place. Your coordinates should be placed within the bottom 3 rows")
+            else:
+                print("Invalid place. Your coordinates should be placed within the top 3 rows")
             continue
         else:
             update_board(num1, num2, pieces[i])
@@ -373,7 +376,7 @@ def move_piece_source():
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate")
+            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
             continue
         y1: int = letterToNums.get(letter)
         x1: int = int(num)
@@ -381,7 +384,7 @@ def move_piece_source():
         piece_source: Piece = board[y1][x1]
 
         if not valid_source_piece(piece_source):
-            print("Invalid coordinate")
+            print(f"Invalid piece. Select only a {GameState.get_colour()} piece that is not a bomb or a flag. Bombs and flags can not be moved")
             continue
         else:
             GameState.set_on_coord2(True)
@@ -403,7 +406,7 @@ def move_piece_destination(y1: int, x1: int):
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate")
+            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
             continue
         y2: int = letterToNums.get(letter)
         x2: int = int(num)
@@ -412,7 +415,8 @@ def move_piece_destination(y1: int, x1: int):
         piece_destination: Piece = board[y2][x2]
 
         if not valid_move(y1, x1, y2, x2):
-            print("Invalid coordinate")
+            print("Invalid move. NOTE: You can only move adjacent to your selected piece, not diagonally."
+                  "Pieces that are not Scouts (2) can only traverse 1 square. Pieces can not move to or through an occupied square (Piece or Water)")
             GameState.set_on_coord2(False)
         else:
             if piece_source.get_colour() != piece_destination.get_colour() and piece_destination.get_rank() != EMPTY_CELL:
