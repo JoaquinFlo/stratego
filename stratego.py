@@ -1,51 +1,10 @@
+import Piece
+from Piece import *
+from gameState import *
 import colorama
 from colorama import Fore, Back
 import sys
 colorama.init(autoreset=True)
-
-
-class Piece:
-    # PIECE CONSTRUCTOR
-    def __init__(self, rank: str, colour: str = None):
-        self._rank = rank
-        self._colour = colour
-
-    # METHODS USED TO OBTAIN PIECE ATTRIBUTES
-    def get_rank(self) -> str:
-        return self._rank
-
-    def get_colour(self) -> str:
-        return self._colour
-
-
-# CLASS THAT HOLDS VARIABLES PERTAINING TO CURRENT GAME STATE
-class GameState:
-    def __init__(self, colour: str, is_playing: bool, on_coord2: bool):
-        self._colour = colour
-        self._isPlaying = is_playing
-        self._onCoord2 = on_coord2
-
-    def get_colour(self) -> str:
-        return self._colour
-
-    def is_playing(self):
-        return self._isPlaying
-
-    def on_coord2(self):
-        return self._onCoord2
-
-    def set_red(self):
-        self._colour = RED
-
-    def set_blue(self):
-        self._colour = BLUE
-
-    def set_is_playing(self, bool_value: bool):
-        self._isPlaying = bool_value
-
-    def set_on_coord2(self, bool_value: bool):
-        self._onCoord2 = bool_value
-
 
 # CONSTANTS
 WATER: str = ' W'
@@ -130,15 +89,13 @@ def print_board():
         print()
 
 
-redPieceNames: list[str] = [
+pieceNames: list[str] = [
     "Marshal : 10", "General : 9", "Colonel : 8", "2nd Colonel : 8", "Major : 7", "2nd Major : 7", "3rd Major : 7",
     "Captain : 6", "2nd Captain : 6", "3rd Captain : 6", "Lieutenant : 5", "2nd Lieutenant : 5", "Sergeant : 4",
     "2nd Sergeant : 4", "Miner : 3", "2nd Miner : 3", "3rd Miner : 3", "4th Miner : 3", "Scout : 2", "2nd Scout : 2",
     "3rd Scout : 2", "4th Scout : 2", "5th Scout : 2", "Bomb", "2nd Bomb", "3rd Bomb", "4th Bomb", "5th Bomb",
     "Spy : 1", "Flag"
 ]
-
-bluePieceNames: list = redPieceNames
 
 # PLAYING PIECES
 redPieces: list[Piece] = [
@@ -194,10 +151,10 @@ def valid_coordinate(letter: str, num: str) -> bool:
 
 
 # PIECE SET-UP PHASE
-def set_up(piece_names: list[str], pieces: list[Piece]):
+def set_up(pieces: list[Piece]):
     i: int = 0
-    while i < len(piece_names) and not GameState.is_playing():
-        print(f"[{GameState.get_colour()}] Place your {piece_names[i]}: ")
+    while i < len(pieceNames) and not GameState.is_playing():
+        print(f"[{GameState.get_colour()}] Place your {pieceNames[i]}: ")
 
         coordinate: str = input()
 
@@ -346,9 +303,9 @@ def att_matchups(y1: int, x1: int, y2: int, x2: int):
 
 GameState.set_red()
 print_board()
-set_up(redPieceNames, redPieces)
+set_up(redPieces)
 GameState.set_blue()
-set_up(bluePieceNames, bluePieces)
+set_up(bluePieces)
 GameState.set_is_playing(True)
 GameState.set_red()
 
@@ -415,7 +372,7 @@ def move_piece_destination(y1: int, x1: int):
         piece_destination: Piece = board[y2][x2]
 
         if not valid_move(y1, x1, y2, x2):
-            print("Invalid move. NOTE: You can only move adjacent to your selected piece, not diagonally."
+            print("Invalid move. NOTE: You can only move adjacent to your selected piece, not diagonally. "
                   "Pieces that are not Scouts (2) can only traverse 1 square. Pieces can not move to or through an occupied square (Piece or Water)")
             GameState.set_on_coord2(False)
         else:
