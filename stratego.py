@@ -4,6 +4,8 @@ from gameState import *
 import colorama
 from colorama import Fore, Back
 import sys
+import random
+import time
 colorama.init(autoreset=True)
 
 # CONSTANTS
@@ -23,6 +25,7 @@ SCO: str = ' 2'
 SPY: str = ' 1'
 BOM: str = ' B'
 FLA: str = ' F'
+WAIT_TIME: int = 1
 
 # INITIAL GAME STATE
 GameState = GameState(RED, False, False)
@@ -155,26 +158,27 @@ def set_up(pieces: list[Piece]):
     i: int = 0
     while i < len(pieceNames) and not GameState.is_playing():
         print(f"[{GameState.get_colour()}] Place your {pieceNames[i]}: ")
+        print(end='> ')
 
         coordinate: str = input()
 
         if len(coordinate) < 2:
-            print("You did not satisfy enough values for a coordinate. Provide a valid letter and number")
+            print(Fore.RED + "You did not satisfy enough values for a coordinate. Provide a valid letter and number")
             continue
         letter: str = coordinate[0].upper()
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
+            print(Fore.RED + "Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
             continue
         num1: int = letterToNums.get(letter)
         num2: int = int(num)
 
         if not valid_place(GameState.get_colour(), num1, num2):
             if GameState.get_colour() == RED:
-                print("Invalid place. Your coordinates should be placed within the bottom 3 rows")
+                print(Fore.RED + "Invalid place. Your coordinates should be placed within the bottom 3 rows")
             else:
-                print("Invalid place. Your coordinates should be placed within the top 3 rows")
+                print(Fore.RED + "Invalid place. Your coordinates should be placed within the top 3 rows")
             continue
         else:
             update_board(num1, num2, pieces[i])
@@ -238,7 +242,7 @@ def valid_move(y1: int, x1: int, y2: int, x2: int) -> bool:
 
 
 # DETERMINES THE RESULTS OF EVERY ATTACK MATCH-UP OF PIECES AND UPDATES THE BOARD ACCORDINGLY
-def att_matchups(y1: int, x1: int, y2: int, x2: int):
+def attack(y1: int, x1: int, y2: int, x2: int):
     source_piece: Piece = board[y1][x1]
     destination_piece: Piece = board[y2][x2]
 
@@ -299,15 +303,7 @@ def att_matchups(y1: int, x1: int, y2: int, x2: int):
             update_board(y2, x2, Piece(EMPTY_CELL))
 
             print(f"{Fore.YELLOW}Tie! {source_piece.get_colour()} and {destination_piece.get_colour()} has both lost piece #{source}")
-
-
-GameState.set_red()
-print_board()
-set_up(redPieces)
-GameState.set_blue()
-set_up(bluePieces)
-GameState.set_is_playing(True)
-GameState.set_red()
+    time.sleep(WAIT_TIME)
 
 
 # TAKES IN A STARTING PIECE THAT SERVES AS A PREREQUISITE PIECE FOR THE PIECE's DESTINATION
@@ -321,19 +317,23 @@ def move_piece_source():
             print(f"{Fore.YELLOW}Congratulations {BLUE}! Your opponent can not move or attack!")
             GameState.set_is_playing(False)
             sys.exit()
+        print(f"\n[{GameState.get_colour()}] Input the first coordinate that represents the piece you will move\n")
         print_board()
-        print(f"\n[{GameState.get_colour()}] Input the first coordinate that represents the piece you will move: ")
+        print()
+        print(end='> ')
 
         coordinate: str = input()
 
         if len(coordinate) < 2:
-            print("You did not satisfy enough values for a coordinate. Provide a valid letter and number")
+            print(Fore.RED + "You did not satisfy enough values for a coordinate. Provide a valid letter and number")
+            time.sleep(WAIT_TIME)
             continue
         letter: str = coordinate[0].upper()
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
+            print(Fore.RED + "Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
+            time.sleep(WAIT_TIME)
             continue
         y1: int = letterToNums.get(letter)
         x1: int = int(num)
@@ -341,7 +341,8 @@ def move_piece_source():
         piece_source: Piece = board[y1][x1]
 
         if not valid_source_piece(piece_source):
-            print(f"Invalid piece. Select only a {GameState.get_colour()} piece that is not a bomb or a flag. Bombs and flags can not be moved")
+            print(f"{Fore.RED}Invalid piece. Select only a {GameState.get_colour()} piece that is not a bomb or a flag. Bombs and flags can not be moved")
+            time.sleep(WAIT_TIME)
             continue
         else:
             GameState.set_on_coord2(True)
@@ -353,17 +354,19 @@ def move_piece_source():
 def move_piece_destination(y1: int, x1: int):
     while GameState.is_playing() and GameState.on_coord2():
         print("Input the second coordinate that represents the destination of your selected piece: ")
-
+        print(end='> ')
         coordinate: str = input()
 
         if len(coordinate) < 2:
-            print("You did not satisfy enough values for a coordinate. Provide a valid letter and number")
+            print(Fore.RED + "You did not satisfy enough values for a coordinate. Provide a valid letter and number")
+            time.sleep(WAIT_TIME)
             continue
         letter: str = coordinate[0].upper()
         num: str = coordinate[1]
 
         if not valid_coordinate(letter, num):
-            print("Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
+            print(Fore.RED + "Invalid coordinate. A valid coordinate must start with a letter from A-H and end with a number from 0-9")
+            time.sleep(WAIT_TIME)
             continue
         y2: int = letterToNums.get(letter)
         x2: int = int(num)
@@ -372,12 +375,13 @@ def move_piece_destination(y1: int, x1: int):
         piece_destination: Piece = board[y2][x2]
 
         if not valid_move(y1, x1, y2, x2):
-            print("Invalid move. NOTE: You can only move adjacent to your selected piece, not diagonally. "
+            print(Fore.RED + "Invalid move. NOTE: You can only move adjacent to your selected piece, not diagonally. "
                   "Pieces that are not Scouts (2) can only traverse 1 square. Pieces can not move to or through an occupied square (Piece or Water)")
+            time.sleep(WAIT_TIME)
             GameState.set_on_coord2(False)
         else:
             if piece_source.get_colour() != piece_destination.get_colour() and piece_destination.get_rank() != EMPTY_CELL:
-                att_matchups(y1, x1, y2, x2)
+                attack(y1, x1, y2, x2)
             else:
                 update_board(y2, x2, piece_source)
             update_board(y1, x1, Piece(EMPTY_CELL))
@@ -389,6 +393,59 @@ def move_piece_destination(y1: int, x1: int):
 
             GameState.set_on_coord2(False)
 
+
+def manual_setup(colour: str):
+    if colour == RED:
+        set_up(redPieces)
+    else:
+        set_up(bluePieces)
+
+
+def auto_setup_red():
+    for row in range(5, ROWS_LENGTH):
+        for col in range(COLS_LENGTH):
+            rnd_piece = redPieces[random.randint(0, len(redPieces)-1)]
+            board[row][col] = rnd_piece
+            redPieces.remove(rnd_piece)
+
+
+def auto_setup_blue():
+    for row in range(0, 3):
+        for col in range(COLS_LENGTH):
+            rnd_piece = bluePieces[random.randint(0, len(bluePieces)-1)]
+            board[row][col] = rnd_piece
+            bluePieces.remove(rnd_piece)
+
+
+def choose_setup_mode(colour: str):
+    choosing: bool = True
+
+    while choosing:
+        print_board()
+        print(f"\n[{colour}] Would you like us to randomly automate your piece set-up? (Y/N)")
+        answer: str = input()
+
+        if answer.upper() == 'Y':
+            if colour == RED:
+                auto_setup_red()
+            else:
+                auto_setup_blue()
+        elif answer.upper() == 'N':
+            manual_setup(GameState.get_colour())
+        else:
+            print(Fore.RED + "Invalid answer. Please answer with 'Y' or 'N'")
+            continue
+        print_board()
+        print()
+        choosing = False
+
+
+choose_setup_mode(GameState.get_colour())
+GameState.set_blue()
+choose_setup_mode(GameState.get_colour())
+
+GameState.set_red()
+GameState.set_is_playing(True)
 
 # MAIN LOOP IN PLAYING GAME PHASE
 while GameState.is_playing():
