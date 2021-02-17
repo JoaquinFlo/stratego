@@ -18,12 +18,6 @@ class GameState:
     def on_coord2(self):
         return self._onCoord2
 
-    def set_red(self):
-        self._colour = RED
-
-    def set_blue(self):
-        self._colour = BLUE
-
     def set_is_playing(self, bool_value: bool):
         self._isPlaying = bool_value
 
