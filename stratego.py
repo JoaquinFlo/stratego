@@ -53,7 +53,6 @@ bluePieces: list[Piece] = [
     Piece(BOM, BLUE), Piece(BOM, BLUE), Piece(BOM, BLUE), Piece(BOM, BLUE), Piece(SPY, BLUE), Piece(FLA, BLUE)
 ]
 
-
 # MAPS LETTERS TO THEIR CORRESPONDING INDEX ON THE BOARD
 letterToNums: dict[str, int] = {
     'A': 0,
@@ -135,6 +134,7 @@ def valid_place(colour: str, _board: list[list[Piece]], y: int, x: int) -> bool:
 
 
 def update_board(_board: list[list[Piece]], y: int, x: int, piece: Piece) -> list[list[Piece]]:
+    print(len(_board))
     tmp_board = _board[:]
     tmp_board[y][x] = piece
     return tmp_board
@@ -146,7 +146,7 @@ def valid_coordinate(letter: str, num: str) -> bool:
 
 
 # PIECE SET-UP PHASE
-def set_up(colour: str, _board: list[list[Piece]], pieces: list[Piece]) -> list[list[Piece]]:
+def set_up(colour: str, _board: list[list[Piece]]) -> list[list[Piece]]:
     tmp_board = _board[:]
     i: int = 0
     while i < len(pieceNames) and not GameState.is_playing():
@@ -172,9 +172,11 @@ def set_up(colour: str, _board: list[list[Piece]], pieces: list[Piece]) -> list[
             else: print(Fore.RED + "Invalid place. Your coordinates should be placed within the top 3 rows")
             continue
         else:
-            tmp_board = update_board(tmp_board, num1, num2, pieces[i])
+            tmp_board = update_board(tmp_board, num1, num2, redPieces[i]) if colour == RED else update_board(tmp_board, num1, num2, bluePieces[i])
             print_board(colour, tmp_board)
-            return tmp_board
+
+        i += 1
+    return tmp_board
 
 
 # CHECKS IF ALL PIECES ON A COLOURED TEAM ARE UNABLE TO MOVE AND ATTACK
@@ -277,7 +279,7 @@ def attack(_board: list[list[Piece]], y1: int, x1: int, y2: int, x2: int) -> lis
 
                 print(f"{Fore.YELLOW}{winner.get_colour()} piece #{winner.get_rank()} has defeated {loser.get_colour()} piece #{loser.get_rank()}")
                 time.sleep(WAIT_TIME)
-
+                return tmp_board
         elif source_val > destination_val:
             winner: Piece = source_piece
             loser: Piece = destination_piece
@@ -391,30 +393,14 @@ def move_piece_destination(colour: str, _board: list[list[Piece]], y1: int, x1: 
     move_piece_source(colour, tmp_board)
 
 
-def manual_setup(colour: str, _board: list[list[Piece]]):
-    tmp_board: list[list[Piece]] = _board
-    set_up(colour, tmp_board, redPieces) if colour == RED else set_up(colour, tmp_board, bluePieces)
-
-
-def auto_setup_red(_board: list[list[Piece]]) -> list[list[Piece]]:
+def auto_setup(colour: str, _board: list[list[Piece]]) -> list[list[Piece]]:
     tmp_board: list[list[Piece]] = _board
 
-    for row in range(5, ROWS_LENGTH):
+    for row in range(0, 3) if colour == BLUE else range(5, ROWS_LENGTH):
         for col in range(COLS_LENGTH):
-            rnd_piece = redPieces[random.randint(0, len(redPieces)-1)]
+            rnd_piece = bluePieces[random.randint(0, len(bluePieces)-1)] if colour == BLUE else redPieces[random.randint(0, len(redPieces)-1)]
             tmp_board[row][col] = rnd_piece
-            redPieces.remove(rnd_piece)
-    return tmp_board
-
-
-def auto_setup_blue(_board: list[list[Piece]]) -> list[list[Piece]]:
-    tmp_board: list[list[Piece]] = _board
-
-    for row in range(0, 3):
-        for col in range(COLS_LENGTH):
-            rnd_piece = bluePieces[random.randint(0, len(bluePieces)-1)]
-            tmp_board[row][col] = rnd_piece
-            bluePieces.remove(rnd_piece)
+            bluePieces.remove(rnd_piece) if colour == BLUE else redPieces.remove(rnd_piece)
     return tmp_board
 
 
@@ -428,9 +414,9 @@ def choose_setup_mode(colour: str, _board: list[list[Piece]]):
         answer: str = input()
 
         if answer.upper() == 'Y':
-            auto_setup_red(tmp_board) if colour == RED else auto_setup_blue(tmp_board)
+            auto_setup(colour, tmp_board)
         elif answer.upper() == 'N':
-            manual_setup(colour, tmp_board)
+            set_up(colour, tmp_board)
         else:
             print(Fore.RED + "Invalid answer. Please answer with 'Y' or 'N'")
             continue
