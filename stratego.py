@@ -134,7 +134,6 @@ def valid_place(colour: str, _board: list[list[Piece]], y: int, x: int) -> bool:
 
 
 def update_board(_board: list[list[Piece]], y: int, x: int, piece: Piece) -> list[list[Piece]]:
-    print(len(_board))
     tmp_board = _board[:]
     tmp_board[y][x] = piece
     return tmp_board
