@@ -5,7 +5,7 @@ Before playing, I suggest that you first learn [Stratego Classic](https://www.pl
 * Python [3.9.x](https://www.python.org/downloads/)
 * Colorama
   ```sh
-  pip install colarama
+  pip install colorama
   ```
 ### Run :running:
 **Clone the Repository**
